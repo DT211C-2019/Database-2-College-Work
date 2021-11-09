@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<project name="claimsDB" id="Project-1000" database="Oracle" >
+	<schema name="CLAIMDB" >
+		<table name="ACCIDENT" generator_rows="50" >
+			<column name="ACCIDENT_ID" prior="ACCIDENT_KEY" type="number" length="0" jt="2" mandatory="y" />
+			<column name="ACCIDENT_DATE" type="date" jt="91" regexp="date:from=&#039;01.01.2000&#039;;to=&#039;01.01.2020&#039;;" />
+			<column name="ACCIDENT_DESCRIPTION" type="varchar2" length="255" jt="12" regexp="((Mini-Bus|Bus) (hit a patrons|crashed into a customers|collided with a person&#039;s) (elbow|arm|leg|head|knee|body). ){1,1}" />
+			<column name="ACCIDENT_LOCATION" type="varchar2" length="255" jt="12" regexp="([1-9][0-9][0-9]?) (North |East |West |South )(Green |White |Rocky )(Nobel|Fabien|Hague|Oak|Second|First|Cowley|Clarendon|New|Old|Milton) (Way|Street|St.|Avenue|Road|Parkway|Freeway|Drive|Boulevard|Blvd.)" />
+			<index name="PK_ACCIDENT_ACCIDENT_KEY" unique="PRIMARY_KEY" >
+				<column name="ACCIDENT_ID" />
+			</index>
+			<fk name="FK_ACCIDENT_MAIN_CLAIM" to_schema="CLAIMDB" to_table="CLAIM" >
+				<fk_column name="ACCIDENT_ID" pk="ACCIDENT_ID" />
+			</fk>
+		</table>
+		<table name="CLAIM" prior="MAIN_CLAIM" generator_rows="50" >
+			<column name="CLAIM_ID" type="number" length="0" jt="2" mandatory="y" />
+			<column name="CLAIM_STATE" type="varchar2" length="100" jt="12" />
+			<column name="CLAIM_NATURE" type="varchar2" length="100" jt="12" />
+			<column name="CLAIM_REPORT_DATE" type="date" jt="91" />
+			<column name="STAFF_ID" type="number" length="0" jt="2" />
+			<column name="CLAIMANT_ID" type="number" length="0" jt="2" />
+			<column name="ACCIDENT_ID" type="number" length="0" jt="2" />
+			<column name="REPORT_ID" type="number" length="0" jt="2" />
+			<column name="PAYMENT_ID" type="number" length="0" jt="2" />
+			<index name="PK_MAIN_CLAIM_CLAIM_ID" unique="PRIMARY_KEY" >
+				<column name="CLAIM_ID" />
+			</index>
+			<index name="UNQ_MAIN_CLAIM_ACCIDENT_ID" unique="UNIQUE_KEY" >
+				<column name="ACCIDENT_ID" />
+			</index>
+			<index name="UNQ_MAIN_CLAIM_STAFF_ID" unique="UNIQUE_KEY" >
+				<column name="STAFF_ID" />
+			</index>
+			<index name="UNQ_MAIN_CLAIM_CLAIMANT_ID" unique="UNIQUE_KEY" >
+				<column name="CLAIMANT_ID" />
+			</index>
+			<index name="UNQ_MAIN_CLAIM_REPORT_ID" unique="UNIQUE_KEY" >
+				<column name="REPORT_ID" />
+			</index>
+			<index name="UNQ_MAIN_CLAIM_PAYMENT_ID" unique="UNIQUE_KEY" >
+				<column name="PAYMENT_ID" />
+			</index>
+		</table>
+		<table name="CLAIMANT" generator_rows="50" >
+			<column name="CLAIMANT_ID" type="number" length="0" jt="2" mandatory="y" />
+			<column name="CLAIMANT_NAME" type="varchar2" length="100" jt="12" />
+			<column name="CLAIMANT_ADDRESS" type="varchar2" length="100" jt="12" />
+			<column name="CLAIMANT_DATE_OF_BIRTH" type="date" jt="91" />
+			<index name="PK_CLAIMANT_CLAIMANT_ID" unique="PRIMARY_KEY" >
+				<column name="CLAIMANT_ID" />
+			</index>
+			<fk name="FK_CLAIMANT_MAIN_CLAIM" to_schema="CLAIMDB" to_table="CLAIM" >
+				<fk_column name="CLAIMANT_ID" pk="CLAIMANT_ID" />
+			</fk>
+		</table>
+		<table name="EXPERT" generator_rows="50" >
+			<column name="EXPERT_ID" type="number" length="0" jt="2" mandatory="y" />
+			<column name="EXPERT_NAME" type="varchar2" length="100" jt="12" regexp_nulls="0" />
+			<column name="EXPERT_ADDRESS" type="varchar2" length="100" jt="12" regexp_nulls="0" />
+			<column name="EXPERT_EXPERTISE" type="varchar2" length="100" jt="12" regexp="((Driver|Inspector)){1,1}" regexp_nulls="0" />
+			<index name="PK_EXPERT_EXPERT_ID" unique="PRIMARY_KEY" >
+				<column name="EXPERT_ID" />
+			</index>
+			<fk name="FK_EXPERT_REPORT" to_schema="CLAIMDB" to_table="REPORT" >
+				<fk_column name="EXPERT_ID" pk="EXPERT_ID" />
+			</fk>
+		</table>
+		<table name="PAYMENT" prior="CLAIMS_PAYMENT" generator_rows="50" >
+			<column name="PAYMENT_ID" type="number" length="0" jt="2" mandatory="y" />
+			<column name="PAYMENT_DATE" type="date" jt="91" />
+			<column name="PAYMENT_AMOUNT" type="number" length="0" jt="2" regexp="short:from=0;to=5000;" />
+			<column name="PAYMENT_REASON" type="char" length="255" jt="1" regexp="((|bought new car|is shopping|is walking). ){1,1}" />
+			<column name="PAYMENT_CHECK_NO" type="number" length="0" jt="2" regexp="int:from=0;to=9999;" />
+			<index name="PK_TBL_PAYMENT_ID" unique="PRIMARY_KEY" >
+				<column name="PAYMENT_ID" />
+			</index>
+			<fk name="FK_CLAIMS_PAYMENT_MAIN_CLAIM" to_schema="CLAIMDB" to_table="CLAIM" >
+				<fk_column name="PAYMENT_ID" pk="PAYMENT_ID" />
+			</fk>
+		</table>
+		<table name="REPORT" generator_rows="50" >
+			<column name="REPORT_ID" type="number" length="0" jt="2" mandatory="y" />
+			<column name="REPORT_REQUEST_DATE" type="date" jt="91" />
+			<column name="REPORT_SUBMIT_DATE" type="date" jt="91" />
+			<column name="REPORT_CONTENT" type="char" length="255" jt="1" />
+			<column name="EXPERT_ID" type="number" length="0" jt="2" />
+			<index name="PK_REPORT_REPORT_ID" unique="PRIMARY_KEY" >
+				<column name="REPORT_ID" />
+			</index>
+			<index name="UNQ_REPORT_EXPERT_ID" unique="UNIQUE_KEY" >
+				<column name="EXPERT_ID" />
+			</index>
+			<fk name="FK_REPORT_MAIN_CLAIM" to_schema="CLAIMDB" to_table="CLAIM" >
+				<fk_column name="REPORT_ID" pk="REPORT_ID" />
+			</fk>
+		</table>
+		<table name="STAFF" generator_rows="50" >
+			<column name="STAFF_ID" type="number" length="0" jt="2" mandatory="y" />
+			<column name="STAFF_NAME" type="varchar2" length="100" jt="12" />
+			<column name="STAFF_ROLE" type="varchar2" length="255" jt="12" />
+			<index name="PK_STAFF_STAFF_ID" unique="PRIMARY_KEY" >
+				<column name="STAFF_ID" />
+			</index>
+			<fk name="FK_STAFF_MAIN_CLAIM" to_schema="CLAIMDB" to_table="CLAIM" >
+				<fk_column name="STAFF_ID" pk="STAFF_ID" />
+			</fk>
+		</table>
+	</schema>
+	<connector name="Oracle" database="Oracle" driver_class="oracle.jdbc.driver.OracleDriver" driver_jar="ojdbc7-12.1.0.2.jar" driver_desc="Connect via SID" host="localhost" port="1521" instance="XE" user="sys as sysdba" passwd="cGFzc3dvcmQ=" />
+	<layout name="Default Layout" id="Layout-484" show_column_type="y" show_relation="columns" >
+		<entity schema="CLAIMDB" name="ACCIDENT" color="BED3F4" x="656" y="560" />
+		<entity schema="CLAIMDB" name="CLAIM" color="BED3F4" x="336" y="272" />
+		<entity schema="CLAIMDB" name="CLAIMANT" color="BED3F4" x="304" y="560" />
+		<entity schema="CLAIMDB" name="EXPERT" color="BED3F4" x="944" y="272" />
+		<entity schema="CLAIMDB" name="PAYMENT" color="BED3F4" x="48" y="336" />
+		<entity schema="CLAIMDB" name="REPORT" color="BED3F4" x="656" y="272" />
+		<entity schema="CLAIMDB" name="STAFF" color="BED3F4" x="48" y="80" />
+		<group name="MAIN_CLAIM" color="ECF0F7" >
+			<entity schema="CLAIMDB" name="REPORT" />
+			<entity schema="CLAIMDB" name="ACCIDENT" />
+			<entity schema="CLAIMDB" name="CLAIMANT" />
+			<entity schema="CLAIMDB" name="STAFF" />
+			<entity schema="CLAIMDB" name="EXPERT" />
+			<entity schema="CLAIMDB" name="CLAIM" />
+			<entity schema="CLAIMDB" name="PAYMENT" />
+		</group>
+		<script name="SQL_Editor" id="Editor-6c0" language="SQL" >
+			<string><![CDATA[alter session set "_ORACLE_SCRIPT"=true;
+
+CREATE USER CLAIMDB IDENTIFIED BY CLAIMDB;
+
+CREATE TABLE CLAIMDB.CLAIMRESOLUTION ( 
+	RESOLUTIONID         number(0)  NOT NULL,
+	CLAIMID              number(0)  NOT NULL,
+	REPORTID             number(0)  NOT NULL,
+	PAYMENTID            number(0)  NOT NULL,
+	CLAIMASSESSMENT      varchar2(255)  NOT NULL,
+	CLAIMSTATUS          char(1)  NOT NULL,
+	CONSTRAINT PK_CLAIMRESOLUT_RESOLUTIONID PRIMARY KEY ( RESOLUTIONID ) ,
+	CONSTRAINT UNQ_CLAIMRESOLUT_CLAIMID UNIQUE ( CLAIMID ) ,
+	CONSTRAINT UNQ_CLAIMRESOLUT_PAYMENTID UNIQUE ( PAYMENTID ) ,
+	CONSTRAINT UNQ_CLAIMRESOLUT_REPORTID UNIQUE ( REPORTID ) 
+ );
+
+CREATE TABLE CLAIMDB.DD ( 
+	DD                   char(22)  
+ );
+
+CREATE TABLE CLAIMDB.EXPERTREPORT ( 
+	REPORTID             number(0)  NOT NULL,
+	EXPERTID             number(0)  NOT NULL,
+	REPORTTEXT           varchar2(1000)  NOT NULL,
+	CONSTRAINT PK_EXPERTREPORT_REPORTID PRIMARY KEY ( REPORTID ) ,
+	CONSTRAINT UNQ_EXPERTREPORT_EXPERTID UNIQUE ( EXPERTID ) 
+ );
+
+CREATE TABLE CLAIMDB.EXPERTWITNESS ( 
+	EXPERTID             number(0)  NOT NULL,
+	NAME                 varchar2(100)  NOT NULL,
+	ADDRESS              varchar2(100)  NOT NULL,
+	EXPERTISE            varchar2(100)  NOT NULL,
+	CONSTRAINT PK_EXPERTWITNES_WITNESSID PRIMARY KEY ( EXPERTID ) 
+ );
+
+CREATE TABLE CLAIMDB.MAIN_CLAIM ( 
+	CLAIM_ID             number(0)  NOT NULL,
+	CLAIM_STATE          varchar2(100)  ,
+	CLAIM_NATURE         varchar2(100)  ,
+	CLAIM_REPORT_DATE    date  ,
+	STAFF_ID             number(0)  ,
+	CLAIMANT_ID          number(0)  ,
+	ACCIDENT_ID          number(0)  ,
+	REPORT_ID            number(0)  ,
+	PAYMENT_ID           number(0)  ,
+	CONSTRAINT PK_MAIN_CLAIM_CLAIM_ID PRIMARY KEY ( CLAIM_ID ) ,
+	CONSTRAINT UNQ_MAIN_CLAIM_ACCIDENT_ID UNIQUE ( ACCIDENT_ID ) ,
+	CONSTRAINT UNQ_MAIN_CLAIM_STAFF_ID UNIQUE ( STAFF_ID ) ,
+	CONSTRAINT UNQ_MAIN_CLAIM_CLAIMANT_ID UNIQUE ( CLAIMANT_ID ) ,
+	CONSTRAINT UNQ_MAIN_CLAIM_REPORT_ID UNIQUE ( REPORT_ID ) ,
+	CONSTRAINT UNQ_MAIN_CLAIM_PAYMENT_ID UNIQUE ( PAYMENT_ID ) 
+ );
+
+CREATE TABLE CLAIMDB.PAYMENT ( 
+	PAYMENTID            number(0)  NOT NULL,
+	CHECKNO              number(0)  NOT NULL,
+	PAYMENT_DATE         date  NOT NULL,
+	AMOUNT               number(0)  NOT NULL,
+	PAYEE                number(0)  NOT NULL,
+	REASON               varchar2(1000)  NOT NULL,
+	CONSTRAINT PK_PAYMENT_PAYMENTID PRIMARY KEY ( PAYMENTID ) 
+ );
+
+CREATE TABLE CLAIMDB.REPORT ( 
+	REPORT_ID            number(0)  NOT NULL,
+	REPORT_REQUEST_DATE  date  ,
+	REPORT_SUBMIT_DATE   date  ,
+	REPORT_CONTENT       char(255)  ,
+	EXPERT_ID            number(0)  ,
+	CONSTRAINT PK_REPORT_REPORT_ID PRIMARY KEY ( REPORT_ID ) ,
+	CONSTRAINT UNQ_REPORT_EXPERT_ID UNIQUE ( EXPERT_ID ) 
+ );
+
+CREATE TABLE CLAIMDB.STAFF ( 
+	STAFF_ID             number(0)  NOT NULL,
+	STAFF_NAME           varchar2(100)  ,
+	STAFF_ROLE           varchar2(255)  ,
+	CONSTRAINT PK_STAFF_STAFF_ID PRIMARY KEY ( STAFF_ID ) 
+ );
+
+CREATE TABLE CLAIMDB.ACCIDENT ( 
+	ACCIDENT_ID          number(0)  NOT NULL,
+	ACCIDENT_DATE        date  ,
+	ACCIDENT_DESCRIPTION varchar2(255)  ,
+	ACCIDENT_LOCATION    varchar2(255)  ,
+	CONSTRAINT PK_ACCIDENT_ACCIDENT_KEY PRIMARY KEY ( ACCIDENT_ID ) 
+ );
+
+CREATE TABLE CLAIMDB.CLAIM ( 
+	CLAIMID              number(0)  NOT NULL,
+	INCEDENTREPORTID     number(0)  NOT NULL,
+	CLAIMACCESSOR        varchar2(255)  ,
+	CONSTRAINT PK_CLAIM_CLAIMID PRIMARY KEY ( CLAIMID ) ,
+	CONSTRAINT UNQ_CLAIM_INCEDENTREPO UNIQUE ( INCEDENTREPORTID ) 
+ );
+
+CREATE TABLE CLAIMDB.CLAIMANT ( 
+	CLAIMANT_ID          number(0)  NOT NULL,
+	CLAIMANT_NAME        varchar2(100)  ,
+	CLAIMANT_ADDRESS     varchar2(100)  ,
+	CLAIMANT_DATE_OF_BIRTH date  ,
+	CONSTRAINT PK_CLAIMANT_CLAIMANT_ID PRIMARY KEY ( CLAIMANT_ID ) 
+ );
+
+CREATE TABLE CLAIMDB.CLAIMS_PAYMENT ( 
+	PAYMENT_ID           number(0)  NOT NULL,
+	PAYMENT_DATE         date  ,
+	PAYMENT_AMOUNT       number(0)  ,
+	PAYMENT_REASON       char(255)  ,
+	PAYMENT_CHECK_NO     number(0)  ,
+	CONSTRAINT PK_TBL_PAYMENT_ID PRIMARY KEY ( PAYMENT_ID ) 
+ );
+
+CREATE TABLE CLAIMDB.EXPERT ( 
+	EXPERT_ID            number(0)  NOT NULL,
+	EXPERT_NAME          varchar2(100)  ,
+	EXPERT_ADDRESS       varchar2(100)  ,
+	EXPERT_EXPERTISE     varchar2(100)  ,
+	CONSTRAINT PK_EXPERT_EXPERT_ID PRIMARY KEY ( EXPERT_ID ) 
+ );
+
+CREATE TABLE CLAIMDB.INCIDENTREPORT ( 
+	INCIDENTREPORTID     number  NOT NULL,
+	DRIVERCONFIRMATION   char(1)  NOT NULL,
+	DRIVERID             number  NOT NULL,
+	INCIDENTID           number(0)  NOT NULL,
+	CONSTRAINT PK_INCIDENTREPO_INCIDENTREPO PRIMARY KEY ( INCIDENTREPORTID ) ,
+	CONSTRAINT UNQ_INCIDENTREPO_INCIDENTID UNIQUE ( INCIDENTID ) ,
+	CONSTRAINT UNQ_INCIDENTREPO_DRIVERID UNIQUE ( DRIVERID ) 
+ );
+
+CREATE TABLE CLAIMDB.DRIVER ( 
+	DRIVERID             number(0)  NOT NULL,
+	NAME                 varchar2(100)  NOT NULL,
+	ROLEID               number(0)  NOT NULL,
+	CONSTRAINT PK_DRIVER_STAFFID PRIMARY KEY ( DRIVERID ) ,
+	CONSTRAINT UNQ_DRIVER_ROLEID UNIQUE ( ROLEID ) 
+ );
+
+CREATE TABLE CLAIMDB.INCIDENT ( 
+	INCIDENTID           number(0)  NOT NULL,
+	"DATE"               date  NOT NULL,
+	TIME                 timestamp(6)  NOT NULL,
+	LOCATION             varchar2(255)  NOT NULL,
+	DESCRIPTION          varchar2(1000)  NOT NULL,
+	CONSTRAINT PK_INCIDENT_INCIDENTID PRIMARY KEY ( INCIDENTID ) 
+ );
+
+CREATE TABLE CLAIMDB.STAFFROLES ( 
+	ROLEID               number(0)  NOT NULL,
+	ROLENAME             varchar2(100)  NOT NULL,
+	CONSTRAINT PK_STAFFROLES_ROLEID PRIMARY KEY ( ROLEID ) 
+ );
+
+ALTER TABLE CLAIMDB.ACCIDENT ADD CONSTRAINT FK_ACCIDENT_MAIN_CLAIM FOREIGN KEY ( ACCIDENT_ID ) REFERENCES CLAIMDB.MAIN_CLAIM( ACCIDENT_ID );
+
+ALTER TABLE CLAIMDB.CLAIM ADD CONSTRAINT FK_CLAIM_CLAIMRESOLUTION FOREIGN KEY ( CLAIMID ) REFERENCES CLAIMDB.CLAIMRESOLUTION( CLAIMID );
+
+ALTER TABLE CLAIMDB.CLAIMANT ADD CONSTRAINT FK_CLAIMANT_MAIN_CLAIM FOREIGN KEY ( CLAIMANT_ID ) REFERENCES CLAIMDB.MAIN_CLAIM( CLAIMANT_ID );
+
+ALTER TABLE CLAIMDB.CLAIMS_PAYMENT ADD CONSTRAINT FK_CLAIMS_PAYMENT_MAIN_CLAIM FOREIGN KEY ( PAYMENT_ID ) REFERENCES CLAIMDB.MAIN_CLAIM( PAYMENT_ID );
+
+ALTER TABLE CLAIMDB.DRIVER ADD CONSTRAINT FK_DRIVER_INCIDENTREPORT FOREIGN KEY ( DRIVERID ) REFERENCES CLAIMDB.INCIDENTREPORT( DRIVERID );
+
+ALTER TABLE CLAIMDB.EXPERT ADD CONSTRAINT FK_EXPERT_REPORT FOREIGN KEY ( EXPERT_ID ) REFERENCES CLAIMDB.REPORT( EXPERT_ID );
+
+ALTER TABLE CLAIMDB.EXPERTREPORT ADD CONSTRAINT FK_EXPERTREPORT_CLAIMRESOLUTION FOREIGN KEY ( REPORTID ) REFERENCES CLAIMDB.CLAIMRESOLUTION( REPORTID );
+
+ALTER TABLE CLAIMDB.EXPERTWITNESS ADD CONSTRAINT FK_EXPERTWITNESS_EXPERTREPORT FOREIGN KEY ( EXPERTID ) REFERENCES CLAIMDB.EXPERTREPORT( EXPERTID );
+
+ALTER TABLE CLAIMDB.INCIDENT ADD CONSTRAINT FK_INCIDENT_INCIDENTREPORT FOREIGN KEY ( INCIDENTID ) REFERENCES CLAIMDB.INCIDENTREPORT( INCIDENTID );
+
+ALTER TABLE CLAIMDB.INCIDENTREPORT ADD CONSTRAINT FK_INCIDENTREPORT_CLAIM FOREIGN KEY ( INCIDENTREPORTID ) REFERENCES CLAIMDB.CLAIM( INCEDENTREPORTID );
+
+ALTER TABLE CLAIMDB.PAYMENT ADD CONSTRAINT FK_PAYMENT_CLAIMRESOLUTION FOREIGN KEY ( PAYMENTID ) REFERENCES CLAIMDB.CLAIMRESOLUTION( PAYMENTID );
+
+ALTER TABLE CLAIMDB.REPORT ADD CONSTRAINT FK_REPORT_MAIN_CLAIM FOREIGN KEY ( REPORT_ID ) REFERENCES CLAIMDB.MAIN_CLAIM( REPORT_ID );
+
+ALTER TABLE CLAIMDB.STAFF ADD CONSTRAINT FK_STAFF_MAIN_CLAIM FOREIGN KEY ( STAFF_ID ) REFERENCES CLAIMDB.MAIN_CLAIM( STAFF_ID );
+
+ALTER TABLE CLAIMDB.STAFFROLES ADD CONSTRAINT FK_STAFFROLES_DRIVER FOREIGN KEY ( ROLEID ) REFERENCES CLAIMDB.DRIVER( ROLEID );
+]]></string>
+		</script>
+	</layout>
+</project>
