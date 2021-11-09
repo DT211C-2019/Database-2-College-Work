@@ -3,15 +3,12 @@
 	<schema name="CLAIMDB" >
 		<table name="ACCIDENT" generator_rows="50" >
 			<column name="ACCIDENT_ID" prior="ACCIDENT_KEY" type="number" length="0" jt="2" mandatory="y" />
-			<column name="ACCIDENT_DATE" type="date" jt="91" />
-			<column name="ACCIDENT_DESCRIPTION" type="varchar2" length="255" jt="12" />
-			<column name="ACCIDENT_LOCATION" type="varchar2" length="255" jt="12" />
+			<column name="ACCIDENT_DATE" type="date" jt="91" regexp="date:from=&#039;01.01.2000&#039;;to=&#039;01.01.2020&#039;;" />
+			<column name="ACCIDENT_DESCRIPTION" type="varchar2" length="255" jt="12" regexp="((Mini-Bus|Bus) (hit a patrons|crashed into a customers|collided with a person&#039;s) (elbow|arm|leg|head|knee|body). ){1,1}" />
+			<column name="ACCIDENT_LOCATION" type="varchar2" length="255" jt="12" regexp="([1-9][0-9][0-9]?) (North |East |West |South )(Green |White |Rocky )(Nobel|Fabien|Hague|Oak|Second|First|Cowley|Clarendon|New|Old|Milton) (Way|Street|St.|Avenue|Road|Parkway|Freeway|Drive|Boulevard|Blvd.)" />
 			<index name="PK_ACCIDENT_ACCIDENT_KEY" unique="PRIMARY_KEY" >
 				<column name="ACCIDENT_ID" />
 			</index>
-			<fk name="FK_ACCIDENT_MAIN_CLAIM" to_schema="CLAIMDB" to_table="CLAIM" >
-				<fk_column name="ACCIDENT_ID" pk="ACCIDENT_ID" />
-			</fk>
 		</table>
 		<table name="CLAIM" prior="MAIN_CLAIM" generator_rows="50" >
 			<column name="CLAIM_ID" type="number" length="0" jt="2" mandatory="y" />
@@ -26,21 +23,33 @@
 			<index name="PK_MAIN_CLAIM_CLAIM_ID" unique="PRIMARY_KEY" >
 				<column name="CLAIM_ID" />
 			</index>
-			<index name="UNQ_MAIN_CLAIM_ACCIDENT_ID" unique="UNIQUE_KEY" >
-				<column name="ACCIDENT_ID" />
-			</index>
-			<index name="UNQ_MAIN_CLAIM_STAFF_ID" unique="UNIQUE_KEY" >
-				<column name="STAFF_ID" />
-			</index>
-			<index name="UNQ_MAIN_CLAIM_CLAIMANT_ID" unique="UNIQUE_KEY" >
-				<column name="CLAIMANT_ID" />
-			</index>
-			<index name="UNQ_MAIN_CLAIM_REPORT_ID" unique="UNIQUE_KEY" >
-				<column name="REPORT_ID" />
-			</index>
-			<index name="UNQ_MAIN_CLAIM_PAYMENT_ID" unique="UNIQUE_KEY" >
+			<index name="UNQ_CLAIM_PAYMENT_ID" unique="UNIQUE_KEY" >
 				<column name="PAYMENT_ID" />
 			</index>
+			<index name="UNQ_CLAIM_REPORT_ID" unique="UNIQUE_KEY" >
+				<column name="REPORT_ID" />
+			</index>
+			<index name="UNQ_CLAIM_ACCIDENT_ID" unique="UNIQUE_KEY" >
+				<column name="ACCIDENT_ID" />
+			</index>
+			<index name="UNQ_CLAIM_CLAIMANT_ID" unique="UNIQUE_KEY" >
+				<column name="CLAIMANT_ID" />
+			</index>
+			<fk name="FK_CLAIM_STAFF" to_schema="CLAIMDB" to_table="STAFF" >
+				<fk_column name="STAFF_ID" pk="STAFF_ID" />
+			</fk>
+			<fk name="FK_CLAIM_PAYMENT" to_schema="CLAIMDB" to_table="PAYMENT" >
+				<fk_column name="PAYMENT_ID" pk="PAYMENT_ID" />
+			</fk>
+			<fk name="FK_CLAIM_REPORT" to_schema="CLAIMDB" to_table="REPORT" >
+				<fk_column name="REPORT_ID" pk="REPORT_ID" />
+			</fk>
+			<fk name="FK_CLAIM_ACCIDENT" to_schema="CLAIMDB" to_table="ACCIDENT" >
+				<fk_column name="ACCIDENT_ID" pk="ACCIDENT_ID" />
+			</fk>
+			<fk name="FK_CLAIM_CLAIMANT" to_schema="CLAIMDB" to_table="CLAIMANT" >
+				<fk_column name="CLAIMANT_ID" pk="CLAIMANT_ID" />
+			</fk>
 		</table>
 		<table name="CLAIMANT" generator_rows="50" >
 			<column name="CLAIMANT_ID" type="number" length="0" jt="2" mandatory="y" />
@@ -50,34 +59,25 @@
 			<index name="PK_CLAIMANT_CLAIMANT_ID" unique="PRIMARY_KEY" >
 				<column name="CLAIMANT_ID" />
 			</index>
-			<fk name="FK_CLAIMANT_MAIN_CLAIM" to_schema="CLAIMDB" to_table="CLAIM" >
-				<fk_column name="CLAIMANT_ID" pk="CLAIMANT_ID" />
-			</fk>
 		</table>
 		<table name="EXPERT" generator_rows="50" >
 			<column name="EXPERT_ID" type="number" length="0" jt="2" mandatory="y" />
-			<column name="EXPERT_NAME" type="varchar2" length="100" jt="12" />
-			<column name="EXPERT_ADDRESS" type="varchar2" length="100" jt="12" />
-			<column name="EXPERT_EXPERTISE" type="varchar2" length="100" jt="12" />
+			<column name="EXPERT_NAME" type="varchar2" length="100" jt="12" regexp_nulls="0" />
+			<column name="EXPERT_ADDRESS" type="varchar2" length="100" jt="12" regexp_nulls="0" />
+			<column name="EXPERT_EXPERTISE" type="varchar2" length="100" jt="12" regexp="((Driver|Inspector)){1,1}" regexp_nulls="0" />
 			<index name="PK_EXPERT_EXPERT_ID" unique="PRIMARY_KEY" >
 				<column name="EXPERT_ID" />
 			</index>
-			<fk name="FK_EXPERT_REPORT" to_schema="CLAIMDB" to_table="REPORT" >
-				<fk_column name="EXPERT_ID" pk="EXPERT_ID" />
-			</fk>
 		</table>
 		<table name="PAYMENT" prior="CLAIMS_PAYMENT" generator_rows="50" >
 			<column name="PAYMENT_ID" type="number" length="0" jt="2" mandatory="y" />
 			<column name="PAYMENT_DATE" type="date" jt="91" />
-			<column name="PAYMENT_AMOUNT" type="number" length="0" jt="2" />
-			<column name="PAYMENT_REASON" type="char" length="255" jt="1" />
-			<column name="PAYMENT_CHECK_NO" type="number" length="0" jt="2" />
+			<column name="PAYMENT_AMOUNT" type="number" length="0" jt="2" regexp="short:from=0;to=5000;" />
+			<column name="PAYMENT_REASON" type="char" length="255" jt="1" regexp="((|bought new car|is shopping|is walking). ){1,1}" />
+			<column name="PAYMENT_CHECK_NO" type="number" length="0" jt="2" regexp="int:from=0;to=9999;" />
 			<index name="PK_TBL_PAYMENT_ID" unique="PRIMARY_KEY" >
 				<column name="PAYMENT_ID" />
 			</index>
-			<fk name="FK_CLAIMS_PAYMENT_MAIN_CLAIM" to_schema="CLAIMDB" to_table="CLAIM" >
-				<fk_column name="PAYMENT_ID" pk="PAYMENT_ID" />
-			</fk>
 		</table>
 		<table name="REPORT" generator_rows="50" >
 			<column name="REPORT_ID" type="number" length="0" jt="2" mandatory="y" />
@@ -88,11 +88,8 @@
 			<index name="PK_REPORT_REPORT_ID" unique="PRIMARY_KEY" >
 				<column name="REPORT_ID" />
 			</index>
-			<index name="UNQ_REPORT_EXPERT_ID" unique="UNIQUE_KEY" >
-				<column name="EXPERT_ID" />
-			</index>
-			<fk name="FK_REPORT_MAIN_CLAIM" to_schema="CLAIMDB" to_table="CLAIM" >
-				<fk_column name="REPORT_ID" pk="REPORT_ID" />
+			<fk name="FK_REPORT_EXPERT" to_schema="CLAIMDB" to_table="EXPERT" >
+				<fk_column name="EXPERT_ID" pk="EXPERT_ID" />
 			</fk>
 		</table>
 		<table name="STAFF" generator_rows="50" >
@@ -102,28 +99,25 @@
 			<index name="PK_STAFF_STAFF_ID" unique="PRIMARY_KEY" >
 				<column name="STAFF_ID" />
 			</index>
-			<fk name="FK_STAFF_MAIN_CLAIM" to_schema="CLAIMDB" to_table="CLAIM" >
-				<fk_column name="STAFF_ID" pk="STAFF_ID" />
-			</fk>
 		</table>
 	</schema>
 	<connector name="Oracle" database="Oracle" driver_class="oracle.jdbc.driver.OracleDriver" driver_jar="ojdbc7-12.1.0.2.jar" driver_desc="Connect via SID" host="localhost" port="1521" instance="XE" user="sys as sysdba" passwd="cGFzc3dvcmQ=" />
 	<layout name="Default Layout" id="Layout-484" show_column_type="y" show_relation="columns" >
-		<entity schema="CLAIMDB" name="ACCIDENT" color="BED3F4" x="656" y="560" />
-		<entity schema="CLAIMDB" name="CLAIM" color="BED3F4" x="352" y="272" />
-		<entity schema="CLAIMDB" name="CLAIMANT" color="BED3F4" x="320" y="560" />
-		<entity schema="CLAIMDB" name="EXPERT" color="BED3F4" x="960" y="272" />
-		<entity schema="CLAIMDB" name="PAYMENT" color="BED3F4" x="48" y="336" />
-		<entity schema="CLAIMDB" name="REPORT" color="BED3F4" x="656" y="272" />
-		<entity schema="CLAIMDB" name="STAFF" color="BED3F4" x="64" y="80" />
+		<entity schema="CLAIMDB" name="ACCIDENT" color="BED3F4" x="48" y="80" />
+		<entity schema="CLAIMDB" name="CLAIM" color="BED3F4" x="416" y="288" />
+		<entity schema="CLAIMDB" name="CLAIMANT" color="BED3F4" x="384" y="576" />
+		<entity schema="CLAIMDB" name="EXPERT" color="BED3F4" x="1024" y="576" />
+		<entity schema="CLAIMDB" name="PAYMENT" color="BED3F4" x="720" y="288" />
+		<entity schema="CLAIMDB" name="REPORT" color="BED3F4" x="720" y="576" />
+		<entity schema="CLAIMDB" name="STAFF" color="BED3F4" x="128" y="384" />
 		<group name="MAIN_CLAIM" color="ECF0F7" >
-			<entity schema="CLAIMDB" name="REPORT" />
-			<entity schema="CLAIMDB" name="ACCIDENT" />
 			<entity schema="CLAIMDB" name="CLAIMANT" />
 			<entity schema="CLAIMDB" name="STAFF" />
-			<entity schema="CLAIMDB" name="EXPERT" />
-			<entity schema="CLAIMDB" name="CLAIM" />
 			<entity schema="CLAIMDB" name="PAYMENT" />
+			<entity schema="CLAIMDB" name="EXPERT" />
+			<entity schema="CLAIMDB" name="REPORT" />
+			<entity schema="CLAIMDB" name="ACCIDENT" />
+			<entity schema="CLAIMDB" name="CLAIM" />
 		</group>
 		<script name="SQL_Editor" id="Editor-6c0" language="SQL" >
 			<string><![CDATA[alter session set "_ORACLE_SCRIPT"=true;
@@ -311,8 +305,5 @@ ALTER TABLE CLAIMDB.STAFF ADD CONSTRAINT FK_STAFF_MAIN_CLAIM FOREIGN KEY ( STAFF
 ALTER TABLE CLAIMDB.STAFFROLES ADD CONSTRAINT FK_STAFFROLES_DRIVER FOREIGN KEY ( ROLEID ) REFERENCES CLAIMDB.DRIVER( ROLEID );
 ]]></string>
 		</script>
-		<form name="Report" id="Report-17d" template="Page" css="container-fluid" view="frame" >
-			<body name="Body" template="Grid" pos="0,0,0,0,f,f" layout="{{-2},{-2}}" scroll="n" html="n" />
-		</form>
 	</layout>
 </project>
