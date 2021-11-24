@@ -1,27 +1,22 @@
 import csv
-from os import read
-from typing import Type
 from pymongo import MongoClient
-from bson.son import SON
 
 # Constants
-csv_header = ["Date", "Time", "Location", "Operator", "Flight #", "Route",
-              "Type", "Registration", "cn/In", "Aboard", "Fatalities", "Ground", "Summary"]
 csv_path = "C:/Users/Solon/Desktop/Projects/College/Year3/Database-2-College-Work/MongoDB Assignment/Airplane_Crashes_and_Fatalities_Since_1908.csv"
 
 csvfile = open(csv_path, 'r')
 reader = csv.DictReader(csvfile)
 reader = list(reader)
 mongo_client = MongoClient()
-# Replace "crashDB" with whatever you want to name the database
 db = mongo_client.crashDB
-# Replace all instances of "relationalImport" with whatever you want to name your collection
 db.relationalImport.drop()
 
+# Finds all unique aircraft
 unique = []
 
 
 def findUnique():
+    print("Starting unique element indexing...")
     for X in reader:
         if X["Type"] not in unique:
             unique.append(X["Type"])
@@ -30,45 +25,38 @@ def findUnique():
     print("Unqiue elements found!")
 
 
+# Adds all instances as sub-documents to aircraft document
 def addToDB():
+    print("Starting instance export...")
     for Y in reader:
         if Y["Type"] in unique:
-            row = {}
-
-            row["Date"] = Y["Date"]
-            row["Time"] = Y["Time"]
-            row["Location"] = Y["Location"]
-            row["Operator"] = Y["Operator"]
-            row["Flight #"] = Y["Flight #"]
-            row["Route"] = Y["Route"]
-            row["Registration"] = Y["Registration"]
-            row["cn/In"] = Y["cn/In"]
-            row["Aboard"] = Y["Aboard"]
-            row["Fatalities"] = Y["Fatalities"]
-            row["Ground"] = Y["Ground"]
-            row["Summary"] = Y["Summary"]
-
             db.relationalImport.update_one(
                 {"Aircraft": Y["Type"]},
                 {"$push":
                  {"Crashes": {
-                     "Date": Y["Date"],
-                     "Time": Y["Time"],
-                     "Location": Y["Location"],
+                     "Datetime": {
+                         "Date": Y["Date"],
+                         "Time": Y["Time"],
+                     },
+                     "Casualties": {
+                         "Aboard": Y["Aboard"],
+                         "Ground": Y["Ground"],
+                     },
+                     "Operator_Data": {
+                         "Flight No.": Y["Flight #"],
+                         "Route": Y["Route"],
+                         "Registration": Y["Registration"],
+                         "CN/IN": Y["cn/In"],
+                     },
                      "Operator": Y["Operator"],
-                     "Flight No.": Y["Flight #"],
-                     "Route": Y["Route"],
-                     "Registration": Y["Registration"],
-                     "CN/IN": Y["cn/In"],
-                     "Aboard": Y["Aboard"],
-                     "Fatalities": Y["Fatalities"],
-                     "Ground": Y["Ground"],
+                     "Location": Y["Location"],
                      "Summary": Y["Summary"]
 
                  }}}
             )
-    print("Unique instances added")
+    print("Unique instances added!")
 
 
+# Driver code
 findUnique()
 addToDB()
