@@ -20,8 +20,8 @@ input("Press enter to continue.")
 
 print("\n\nDemonstrate sort and aggregate\n")
 for x in col.aggregate([
-    { "$match": {"Crashes.Casulaties.Aboard": "2"}},
-    { "$sort": {"Crashes.Casulaties.Aboard" : -1}}
+    { "$match": {"Crashes.Casualties.Aboard": "50"}},
+    { "$sort": {"Crashes.Casualties.Aboard" : -1}}
     ]):
 
     print(x)
